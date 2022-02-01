@@ -6,7 +6,7 @@ from flask_login import login_user
 from flask_testing import TestCase
 
 from app import create_app, db
-from app.models import Todo, TodoList, User
+from app.models import Idea, Portfolio, User
 
 
 class TodolistAPITestCase(TestCase):
@@ -51,15 +51,15 @@ class TodolistAPITestCase(TestCase):
 
     @staticmethod
     def add_todolist(title, username=None):
-        todolist = TodoList(title=title, creator=username).save()
-        return TodoList.query.filter_by(id=todolist.id).first()
+        todolist = Portfolio(title=title, creator=username).save()
+        return Portfolio.query.filter_by(id=todolist.id).first()
 
     def add_todo(self, description, todolist_id, username=None):
-        todolist = TodoList.query.filter_by(id=todolist_id).first()
-        todo = Todo(
-            description=description, todolist_id=todolist.id, creator=username
+        todolist = Portfolio.query.filter_by(id=todolist_id).first()
+        todo = Idea(
+            description=description, portfolio_id=todolist.id, creator=username
         ).save()
-        return Todo.query.filter_by(id=todo.id).first()
+        return Idea.query.filter_by(id=todo.id).first()
 
     def add_user_through_json_post(self, username):
         user_data = self.setup_new_user(username)
@@ -376,7 +376,7 @@ class TodolistAPITestCase(TestCase):
         self.assert400Response(post_response)
 
     def test_add_todolist_todo(self):
-        new_todolist = TodoList().save()  # todolist with default title
+        new_todolist = Portfolio().save()  # todolist with default title
 
         post_response = self.client.post(
             url_for("api.add_todolist_todo", todolist_id=new_todolist.id),
@@ -413,7 +413,7 @@ class TodolistAPITestCase(TestCase):
         self.assert404Response(post_response)
 
     def test_add_todolist_todo_without_todo_data(self):
-        new_todolist = TodoList().save()
+        new_todolist = Portfolio().save()
         post_response = self.client.post(
             url_for("api.add_todolist_todo", todolist_id=new_todolist.id),
             headers=self.get_headers(),
@@ -679,7 +679,7 @@ class TodolistAPITestCase(TestCase):
             data=json.dumps({"is_finished": True}),
         )
 
-        todo = Todo.query.get(todo.id)
+        todo = Idea.query.get(todo.id)
         self.assertTrue(todo.is_finished)
 
     def test_update_todo_status_to_open(self):
@@ -693,7 +693,7 @@ class TodolistAPITestCase(TestCase):
             headers=self.get_headers(),
             data=json.dumps({"is_finished": False}),
         )
-        todo = Todo.query.get(todo.id)
+        todo = Idea.query.get(todo.id)
         self.assertFalse(todo.is_finished)
         self.assertTrue(todo.finished_at is None)
 

@@ -3,13 +3,13 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import Length, DataRequired
 
 
-class TodoForm(FlaskForm):
-    todo = StringField("Enter your todo", validators=[DataRequired(), Length(1, 128)])
+class IdeaForm(FlaskForm):
+    idea = StringField("Enter your todo", validators=[DataRequired(), Length(1, 128)])
     submit = SubmitField("Submit")
 
 
-class TodoListForm(FlaskForm):
+class PortfolioForm(FlaskForm):
     title = StringField(
-        "Enter your todolist title", validators=[DataRequired(), Length(1, 128)]
+        "Enter your portfolio title", validators=[DataRequired(), Length(1, 128)]
     )
     submit = SubmitField("Submit")

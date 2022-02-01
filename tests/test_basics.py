@@ -3,7 +3,7 @@ import unittest
 from flask import current_app
 
 from app import create_app, db
-from app.models import Todo, TodoList, User
+from app.models import Idea, Portfolio, User
 
 
 class TodolistTestCase(unittest.TestCase):
@@ -36,11 +36,11 @@ class TodolistTestCase(unittest.TestCase):
     def add_todo(description, user, todolist_id=None):
         todo_data = {
             "description": description,
-            "todolist_id": todolist_id or TodoList().save().id,
+            "todolist_id": todolist_id or Portfolio().save().id,
             "creator": user.username,
         }
-        read_todo = Todo.from_dict(todo_data)
-        return Todo.query.filter_by(id=read_todo.id).first()
+        read_todo = Idea.from_dict(todo_data)
+        return Idea.query.filter_by(id=read_todo.id).first()
 
     def test_app_exists(self):
         self.assertTrue(current_app is not None)
@@ -73,10 +73,10 @@ class TodolistTestCase(unittest.TestCase):
         self.assertEqual(new_user.email, self.username_adam + "@example.com")
 
     def test_adding_new_todo_without_user(self):
-        todo = Todo(
-            description=self.read_todo_description, todolist_id=TodoList().save().id
+        todo = Idea(
+            description=self.read_todo_description, portfolio_id=Portfolio().save().id
         ).save()
-        todo_from_db = Todo.query.filter_by(id=todo.id).first()
+        todo_from_db = Idea.query.filter_by(id=todo.id).first()
 
         self.assertEqual(todo_from_db.description, self.read_todo_description)
         self.assertIsNone(todo_from_db.creator)
@@ -117,32 +117,32 @@ class TodolistTestCase(unittest.TestCase):
         self.assertNotEqual(first_todo.id, second_todo.id)
 
     def test_adding_new_todolist_without_user(self):
-        todolist = TodoList(self.shopping_list_title).save()
-        todolist_from_db = TodoList.query.filter_by(id=todolist.id).first()
+        todolist = Portfolio(self.shopping_list_title).save()
+        todolist_from_db = Portfolio.query.filter_by(id=todolist.id).first()
 
         self.assertEqual(todolist_from_db.title, self.shopping_list_title)
         self.assertIsNone(todolist_from_db.creator)
 
     def test_adding_new_todolist_with_user(self):
         user = self.add_user(self.username_adam)
-        todolist = TodoList(
+        todolist = Portfolio(
             title=self.shopping_list_title, creator=user.username
         ).save()
-        todolist_from_db = TodoList.query.filter_by(id=todolist.id).first()
+        todolist_from_db = Portfolio.query.filter_by(id=todolist.id).first()
 
         self.assertEqual(todolist_from_db.title, self.shopping_list_title)
         self.assertEqual(todolist_from_db.creator, user.username)
 
     def test_adding_two_todolists_with_the_same_title(self):
         user = self.add_user(self.username_adam)
-        ftodolist = TodoList(
+        ftodolist = Portfolio(
             title=self.shopping_list_title, creator=user.username
         ).save()
-        first_todolist = TodoList.query.filter_by(id=ftodolist.id).first()
-        stodolist = TodoList(
+        first_todolist = Portfolio.query.filter_by(id=ftodolist.id).first()
+        stodolist = Portfolio(
             title=self.shopping_list_title, creator=user.username
         ).save()
-        second_todolist = TodoList.query.filter_by(id=stodolist.id).first()
+        second_todolist = Portfolio.query.filter_by(id=stodolist.id).first()
 
         self.assertEqual(first_todolist.title, second_todolist.title)
         self.assertEqual(first_todolist.creator, second_todolist.creator)
@@ -150,10 +150,10 @@ class TodolistTestCase(unittest.TestCase):
 
     def test_adding_todo_to_todolist(self):
         user = self.add_user(self.username_adam)
-        todolist = TodoList(
+        todolist = Portfolio(
             title=self.shopping_list_title, creator=user.username
         ).save()
-        todolist_from_db = TodoList.query.filter_by(id=todolist.id).first()
+        todolist_from_db = Portfolio.query.filter_by(id=todolist.id).first()
 
         todo_description = "A book about TDD"
         todo = self.add_todo(todo_description, user, todolist_from_db.id)
@@ -161,23 +161,23 @@ class TodolistTestCase(unittest.TestCase):
         self.assertEqual(todolist_from_db.todo_count, 1)
         self.assertEqual(todolist.title, self.shopping_list_title)
         self.assertEqual(todolist.creator, user.username)
-        self.assertEqual(todo.todolist_id, todolist_from_db.id)
-        self.assertEqual(todolist.todos.first(), todo)
+        self.assertEqual(todo.portfolio_id, todolist_from_db.id)
+        self.assertEqual(todolist.ideas.first(), todo)
 
     def test_counting_todos_of_todolist(self):
         user = self.add_user(self.username_adam)
-        todolist = TodoList(
+        todolist = Portfolio(
             title=self.shopping_list_title, creator=user.username
         ).save()
-        todolist_from_db = TodoList.query.filter_by(id=todolist.id).first()
+        todolist_from_db = Portfolio.query.filter_by(id=todolist.id).first()
 
         todo_description = "A book about TDD"
         todo = self.add_todo(todo_description, user, todolist_from_db.id)
 
         self.assertEqual(todolist.title, self.shopping_list_title)
         self.assertEqual(todolist.creator, user.username)
-        self.assertEqual(todo.todolist_id, todolist_from_db.id)
-        self.assertEqual(todolist.todos.first(), todo)
+        self.assertEqual(todo.portfolio_id, todolist_from_db.id)
+        self.assertEqual(todolist.ideas.first(), todo)
 
         self.assertEqual(todolist_from_db.finished_count, 0)
         self.assertEqual(todolist_from_db.open_count, 1)
@@ -195,16 +195,16 @@ class TodolistTestCase(unittest.TestCase):
         self.assertIsNone(User.query.get(user_id))
 
     def test_delete_todolist(self):
-        todolist = TodoList(self.shopping_list_title).save()
+        todolist = Portfolio(self.shopping_list_title).save()
         todolist_id = todolist.id
         todolist.delete()
-        self.assertIsNone(TodoList.query.get(todolist_id))
+        self.assertIsNone(Portfolio.query.get(todolist_id))
 
     def test_delete_todo(self):
-        todolist = TodoList(self.shopping_list_title).save()
-        todo = Todo("A book about TDD", todolist.id).save()
+        todolist = Portfolio(self.shopping_list_title).save()
+        todo = Idea("A book about TDD", todolist.id).save()
         self.assertEqual(todolist.todo_count, 1)
         todo_id = todo.id
         todo.delete()
-        self.assertIsNone(Todo.query.get(todo_id))
+        self.assertIsNone(Idea.query.get(todo_id))
         self.assertEqual(todolist.todo_count, 0)

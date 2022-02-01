@@ -2,24 +2,24 @@ from flask import redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app.main import main
-from app.main.forms import TodoForm, TodoListForm
-from app.models import Todo, TodoList
+from app.main.forms import IdeaForm, PortfolioForm
+from app.models import Idea, Portfolio
 
 
 @main.route("/")
 def index():
-    form = TodoForm()
+    form = IdeaForm()
     if form.validate_on_submit():
-        return redirect(url_for("main.new_todolist"))
+        return redirect(url_for("main.new_portfolio"))
     return render_template("index.html", form=form)
 
 
-@main.route("/todolists/", methods=["GET", "POST"])
+@main.route("/portfolios/", methods=["GET", "POST"])
 @login_required
-def todolist_overview():
-    form = TodoListForm()
+def portfolio_overview():
+    form = PortfolioForm()
     if form.validate_on_submit():
-        return redirect(url_for("main.add_todolist"))
+        return redirect(url_for("main.add_portfolio"))
     return render_template("overview.html", form=form)
 
 
@@ -27,30 +27,30 @@ def _get_user():
     return current_user.username if current_user.is_authenticated else None
 
 
-@main.route("/todolist/<int:id>/", methods=["GET", "POST"])
-def todolist(id):
-    todolist = TodoList.query.filter_by(id=id).first_or_404()
-    form = TodoForm()
+@main.route("/portfolio/<int:id>/", methods=["GET", "POST"])
+def portfolio(id):
+    portfolio = Portfolio.query.filter_by(id=id).first_or_404()
+    form = IdeaForm()
     if form.validate_on_submit():
-        Todo(form.todo.data, todolist.id, _get_user()).save()
-        return redirect(url_for("main.todolist", id=id))
-    return render_template("todolist.html", todolist=todolist, form=form)
+        Idea(form.idea.data, portfolio.id, _get_user()).save()
+        return redirect(url_for("main.portfolio", id=id))
+    return render_template("portfolio.html", portfolio=portfolio, form=form)
 
 
-@main.route("/todolist/new/", methods=["POST"])
-def new_todolist():
-    form = TodoForm(todo=request.form.get("todo"))
+@main.route("/portfolio/new/", methods=["POST"])
+def new_portfolio():
+    form = IdeaForm(todo=request.form.get("todo"))
     if form.validate():
-        todolist = TodoList(creator=_get_user()).save()
-        Todo(form.todo.data, todolist.id).save()
-        return redirect(url_for("main.todolist", id=todolist.id))
+        portfolio = Portfolio(creator=_get_user()).save()
+        Idea(form.idea.data, portfolio.id).save()
+        return redirect(url_for("main.portfolio", id=portfolio.id))
     return redirect(url_for("main.index"))
 
 
-@main.route("/todolist/add/", methods=["POST"])
-def add_todolist():
-    form = TodoListForm(todo=request.form.get("title"))
+@main.route("/portfolio/add/", methods=["POST"])
+def add_portfolio():
+    form = PortfolioForm(todo=request.form.get("title"))
     if form.validate():
-        todolist = TodoList(form.title.data, _get_user()).save()
-        return redirect(url_for("main.todolist", id=todolist.id))
+        portfolio = Portfolio(form.title.data, _get_user()).save()
+        return redirect(url_for("main.portfolio", id=portfolio.id))
     return redirect(url_for("main.index"))

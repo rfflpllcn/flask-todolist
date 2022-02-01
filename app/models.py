@@ -58,7 +58,7 @@ class User(UserMixin, db.Model, BaseModel):
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     is_admin = db.Column(db.Boolean, default=False)
 
-    todolists = db.relationship("TodoList", backref="user", lazy="dynamic")
+    portfolios = db.relationship("Portfolio", backref="user", lazy="dynamic")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -120,10 +120,10 @@ class User(UserMixin, db.Model, BaseModel):
             "user_url": url_for("api.get_user", username=self.username, _external=True),
             "member_since": self.member_since,
             "last_seen": self.last_seen,
-            "todolists": url_for(
+            "portfolios": url_for(
                 "api.get_user_todolists", username=self.username, _external=True
             ),
-            "todolist_count": self.todolists.count(),
+            "portfolio_count": self.portfolios.count(),
         }
 
     def promote_to_admin(self):
@@ -136,13 +136,13 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-class TodoList(db.Model, BaseModel):
-    __tablename__ = "todolist"
+class Portfolio(db.Model, BaseModel):
+    __tablename__ = "portfolio"
     id = db.Column(db.Integer, primary_key=True)
     _title = db.Column("title", db.String(128))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     creator = db.Column(db.String(64), db.ForeignKey("user.username"))
-    todos = db.relationship("Todo", backref="todolist", lazy="dynamic")
+    ideas = db.relationship("Idea", backref="portfolio", lazy="dynamic")
 
     def __init__(self, title=None, creator=None, created_at=None):
         self.title = title or "untitled"
@@ -150,7 +150,7 @@ class TodoList(db.Model, BaseModel):
         self.created_at = created_at or datetime.utcnow()
 
     def __repr__(self):
-        return f"<Todolist: {self.title}>"
+        return f"<Portfolio: {self.title}>"
 
     @property
     def title(self):
@@ -186,35 +186,35 @@ class TodoList(db.Model, BaseModel):
 
     @property
     def todo_count(self):
-        return self.todos.order_by(None).count()
+        return self.ideas.order_by(None).count()
 
     @property
     def finished_count(self):
-        return self.todos.filter_by(is_finished=True).count()
+        return self.ideas.filter_by(is_finished=True).count()
 
     @property
     def open_count(self):
-        return self.todos.filter_by(is_finished=False).count()
+        return self.ideas.filter_by(is_finished=False).count()
 
 
-class Todo(db.Model, BaseModel):
-    __tablename__ = "todo"
+class Idea(db.Model, BaseModel):
+    __tablename__ = "idea"
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(128))
     created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     finished_at = db.Column(db.DateTime, index=True, default=None)
     is_finished = db.Column(db.Boolean, default=False)
     creator = db.Column(db.String(64), db.ForeignKey("user.username"))
-    todolist_id = db.Column(db.Integer, db.ForeignKey("todolist.id"))
+    portfolio_id = db.Column(db.Integer, db.ForeignKey("portfolio.id"))
 
-    def __init__(self, description, todolist_id, creator=None, created_at=None):
+    def __init__(self, description, portfolio_id, creator=None, created_at=None):
         self.description = description
-        self.todolist_id = todolist_id
+        self.portfolio_id = portfolio_id
         self.creator = creator
         self.created_at = created_at or datetime.utcnow()
 
     def __repr__(self):
-        return "<{} Todo: {} by {}>".format(
+        return "<{} Idea: {} by {}>".format(
             self.status, self.description, self.creator or "None"
         )
 

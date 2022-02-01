@@ -11,7 +11,7 @@ $(document).ready(function() {
       return node.innerHTML;
     }
   }
-  $("#todolist-overview-table").tablesorter({
+  $("#portfolio-overview-table").tablesorter({
     textExtraction: timeExtraction
   });
 });
@@ -24,17 +24,17 @@ $(document).ready(function() {
 
 {% block body %}
 <section class="header">
-  <h2 class="title">Todolist overview</h2>
+  <h2 class="title">Portfolio overview</h2>
   <div class="row">
     <div class="three columns value-prop"></div>
     <div class="six columns">
       {% if form.errors %}
-        <div class="has-error"><strong>Todos should neither be empty nor be longer than 128 characters.</strong></div>
+        <div class="has-error"><strong>Ideas should neither be empty nor be longer than 128 characters.</strong></div>
       {% endif %}
-      <form action="{{ url_for('main.add_todolist') }}" method=post>
+      <form action="{{ url_for('main.add_portfolio') }}" method=post>
         {{ form.hidden_tag() }}
         <dl>
-          <dd>{{ form.title(class_="u-full-width", placeholder="Enter a title to start a new todolist", value="", maxlength=128) }}
+          <dd>{{ form.title(class_="u-full-width", placeholder="Enter a title to start a new portfolio", value="", maxlength=128) }}
           <dt>{{ form.submit }}
         </dl>
       </form>
@@ -42,23 +42,23 @@ $(document).ready(function() {
   </div>
   <div class="row">
     <div class="u-full-width">
-      <h6 class="docs-header todolist-overview">All your todolists</h6>
+      <h6 class="docs-header todolist-overview">All your portfolios</h6>
       <table id="todolist-overview-table" class="tablesorter">
         <thead>
           <tr>
-            <th style="width:50%">Todolist title</th>
+            <th style="width:50%">Portfolio title</th>
             <th># Open</th>
             <th># Finished</th>
             <th class="datetime">Created at</th>
           </tr>
         </thead>
         <tbody>
-          {% for todolist in current_user.todolists %}
+          {% for portfolio in current_user.portfolios %}
             <tr>
-              <td><a href="{{ url_for('main.todolist', id=todolist.id) }}">{{ todolist.title }}</a></td>
-              <td>{{ todolist.open_count }}</td>
-              <td>{{ todolist.finished_count }}</td>
-              <td data-time-in-seconds="{{ todolist.created_at|in_seconds }}">{{ todolist.created_at|humanize }}</td>
+              <td><a href="{{ url_for('main.portfolio', id=portfolio.id) }}">{{ portfolio.title }}</a></td>
+              <td>{{ portfolio.open_count }}</td>
+              <td>{{ portfolio.finished_count }}</td>
+              <td data-time-in-seconds="{{ portfolio.created_at|in_seconds }}">{{ portfolio.created_at|humanize }}</td>
             </tr>
           {% endfor %}
         </tbody>

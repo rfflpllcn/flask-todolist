@@ -4,7 +4,7 @@ from datetime import datetime
 import forgery_py
 
 from app import db
-from app.models import Todo, TodoList, User
+from app.models import Idea, Portfolio, User
 
 
 class FakeGenerator:
@@ -25,37 +25,37 @@ class FakeGenerator:
                 member_since=self.generate_fake_date(),
             ).save()
 
-    def generate_fake_todolists(self, count):
+    def generate_fake_portfolios(self, count):
         # for the creator relation we need users
         users = User.query.all()
         assert users != []
         for _ in range(count):
-            TodoList(
+            Portfolio(
                 title=forgery_py.forgery.lorem_ipsum.title(),
                 creator=random.choice(users).username,
                 created_at=self.generate_fake_date(),
             ).save()
 
-    def generate_fake_todo(self, count):
-        # for the todolist relation we need todolists
-        todolists = TodoList.query.all()
-        assert todolists != []
+    def generate_fake_idea(self, count):
+        # for the portfolio relation we need portfolios
+        portfolios = Portfolio.query.all()
+        assert portfolios != []
         for _ in range(count):
-            todolist = random.choice(todolists)
-            todo = Todo(
+            portfolio = random.choice(portfolios)
+            idea = Idea(
                 description=forgery_py.forgery.lorem_ipsum.words(),
-                todolist_id=todolist.id,
-                creator=todolist.creator,
+                portfolio_id=portfolio.id,
+                creator=portfolio.creator,
                 created_at=self.generate_fake_date(),
             ).save()
             if random.choice([True, False]):
-                todo.finished()
+                idea.finished()
 
     def generate_fake_data(self, count):
         # generation must follow this order, as each builds on the previous
         self.generate_fake_users(count)
-        self.generate_fake_todolists(count * 4)
-        self.generate_fake_todo(count * 16)
+        self.generate_fake_portfolios(count * 4)
+        self.generate_fake_idea(count * 16)
 
     def start(self, count=10):
         self.generate_fake_data(count)

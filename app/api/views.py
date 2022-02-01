@@ -1,15 +1,15 @@
-from flask import abort, request, url_for
+from flask import abort, request, url_for, jsonify
 
 from app.api import api
 from app.decorators import admin_required
-from app.models import Todo, TodoList, User
+from app.models import Idea, Portfolio, User
 
 
 @api.route("/")
 def get_routes():
     return {
         "users": url_for("api.get_users", _external=True),
-        "todolists": url_for("api.get_todolists", _external=True),
+        "portfolios": url_for("api.get_portfolios", _external=True),
     }
 
 
@@ -37,124 +37,124 @@ def add_user():
     return user.to_dict(), 201
 
 
-@api.route("/user/<string:username>/todolists/")
+@api.route("/user/<string:username>/portfolios/")
 def get_user_todolists(username):
     user = User.query.filter_by(username=username).first_or_404()
-    todolists = user.todolists
-    return {"todolists": [todolist.to_dict() for todolist in todolists]}
+    portfolios = user.portfolios
+    return {"portfolios": [portfolio.to_dict() for portfolio in portfolios]}
 
 
-@api.route("/user/<string:username>/todolist/<int:todolist_id>/")
-def get_user_todolist(username, todolist_id):
+@api.route("/user/<string:username>/portfolio/<int:portfolio_id>/")
+def get_user_portfolio(username, portfolio_id):
     user = User.query.filter_by(username=username).first()
-    todolist = TodoList.query.get_or_404(todolist_id)
-    if not user or username != todolist.creator:
+    portfolio = Portfolio.query.get_or_404(portfolio_id)
+    if not user or username != portfolio.creator:
         abort(404)
-    return todolist.to_dict()
+    return portfolio.to_dict()
 
 
-@api.route("/user/<string:username>/todolist/", methods=["POST"])
+@api.route("/user/<string:username>/portfolio/", methods=["POST"])
 def add_user_todolist(username):
     user = User.query.filter_by(username=username).first_or_404()
     try:
-        todolist = TodoList(
+        portfolio = Portfolio(
             title=request.json.get("title"), creator=user.username
         ).save()
     except:
         abort(400)
-    return todolist.to_dict(), 201
+    return portfolio.to_dict(), 201
 
 
-@api.route("/todolists/")
-def get_todolists():
-    todolists = TodoList.query.all()
-    return {"todolists": [todolist.to_dict() for todolist in todolists]}
+@api.route("/portfolios/")
+def get_portfolios():
+    portfolios = Portfolio.query.all()
+    return {"portfolios": [portfolio.to_dict() for portfolio in portfolios]}
 
 
-@api.route("/todolist/<int:todolist_id>/")
-def get_todolist(todolist_id):
-    todolist = TodoList.query.get_or_404(todolist_id)
-    return todolist.to_dict()
+@api.route("/portfolio/<portfolio_id>/")
+def get_portfolio(portfolio_id):
+    portfolio = Portfolio.query.get_or_404(portfolio_id)
+    return portfolio.to_dict()
 
 
-@api.route("/todolist/", methods=["POST"])
-def add_todolist():
+@api.route("/portfolio/", methods=["POST"])
+def add_portfolio():
     try:
-        todolist = TodoList(title=request.json.get("title")).save()
+        portfolio = Portfolio(title=request.json.get("title")).save()
     except:
         abort(400)
-    return todolist.to_dict(), 201
+    return portfolio.to_dict(), 201
 
 
-@api.route("/todolist/<int:todolist_id>/todos/")
-def get_todolist_todos(todolist_id):
-    todolist = TodoList.query.get_or_404(todolist_id)
-    return {"todos": [todo.to_dict() for todo in todolist.todos]}
+@api.route("/portfolio/<int:portfolio_id>/todos/")
+def get_portfolio_ideas(portfolio_id):
+    portfolio = Portfolio.query.get_or_404(portfolio_id)
+    return {"ideas": [idea.to_dict() for idea in portfolio.ideas]}
 
 
-@api.route("/user/<string:username>/todolist/<int:todolist_id>/todos/")
-def get_user_todolist_todos(username, todolist_id):
-    todolist = TodoList.query.get_or_404(todolist_id)
-    if todolist.creator != username:
+@api.route("/user/<string:username>/portfolio/<int:portfolio_id>/ideas/")
+def get_user_portfolio_ideas(username, portfolio_id):
+    portfolio = Portfolio.query.get_or_404(portfolio_id)
+    if portfolio.creator != username:
         abort(404)
-    return {"todos": [todo.to_dict() for todo in todolist.todos]}
+    return {"ideas": [idea.to_dict() for idea in portfolio.ideas]}
 
 
-@api.route("/user/<string:username>/todolist/<int:todolist_id>/", methods=["POST"])
-def add_user_todolist_todo(username, todolist_id):
+@api.route("/user/<string:username>/portfolio/<int:portfolio_id>/", methods=["POST"])
+def add_user_todolist_todo(username, portfolio_id):
     user = User.query.filter_by(username=username).first_or_404()
-    todolist = TodoList.query.get_or_404(todolist_id)
+    portfolio = Portfolio.query.get_or_404(portfolio_id)
     try:
-        todo = Todo(
+        idea = Idea(
             description=request.json.get("description"),
-            todolist_id=todolist.id,
+            portfolio_id=portfolio.id,
             creator=user.username,
         ).save()
     except:
         abort(400)
-    return todo.to_dict(), 201
+    return idea.to_dict(), 201
 
 
-@api.route("/todolist/<int:todolist_id>/", methods=["POST"])
-def add_todolist_todo(todolist_id):
-    todolist = TodoList.query.get_or_404(todolist_id)
+@api.route("/portfolio/<int:portfolio_id>/", methods=["POST"])
+def add_portfolio_idea(portfolio_id):
+    portfolio = Portfolio.query.get_or_404(portfolio_id)
     try:
-        todo = Todo(
-            description=request.json.get("description"), todolist_id=todolist.id
+        idea = Idea(
+            description=request.json.get("description"), portfolio_id=portfolio.id
         ).save()
     except:
         abort(400)
-    return todo.to_dict(), 201
+    return idea.to_dict(), 201
 
 
-@api.route("/todo/<int:todo_id>/")
-def get_todo(todo_id):
-    todo = Todo.query.get_or_404(todo_id)
-    return todo.to_dict()
+@api.route("/idea/<int:idea_id>/")
+def get_idea(idea_id):
+    idea = Idea.query.get_or_404(idea_id)
+    return idea.to_dict()
 
 
-@api.route("/todo/<int:todo_id>/", methods=["PUT"])
-def update_todo_status(todo_id):
-    todo = Todo.query.get_or_404(todo_id)
+@api.route("/idea/<int:idea_id>/", methods=["PUT"])
+def update_idea_status(idea_id):
+    idea = Idea.query.get_or_404(idea_id)
     try:
         if request.json.get("is_finished"):
-            todo.finished()
+            idea.finished()
         else:
-            todo.reopen()
+            idea.reopen()
     except:
         abort(400)
-    return todo.to_dict()
+    return idea.to_dict()
 
 
-@api.route("/todolist/<int:todolist_id>/", methods=["PUT"])
-def change_todolist_title(todolist_id):
-    todolist = TodoList.query.get_or_404(todolist_id)
+@api.route("/portfolio/<int:portfolio_id>/", methods=["PUT"])
+def change_portfolio_title(portfolio_id):
+    portfolio = Portfolio.query.get_or_404(portfolio_id)
     try:
-        todolist.title = request.json.get("title")
-        todolist.save()
+        portfolio.title = request.json.get("title")
+        portfolio.save()
     except:
         abort(400)
-    return todolist.to_dict()
+    return portfolio.to_dict()
 
 
 @api.route("/user/<string:username>/", methods=["DELETE"])
@@ -171,13 +171,13 @@ def delete_user(username):
         abort(400)
 
 
-@api.route("/todolist/<int:todolist_id>/", methods=["DELETE"])
+@api.route("/portfolio/<int:portfolio_id>/", methods=["DELETE"])
 @admin_required
-def delete_todolist(todolist_id):
-    todolist = TodoList.query.get_or_404(todolist_id)
+def delete_portfolio(portfolio_id):
+    portfolio = Portfolio.query.get_or_404(portfolio_id)
     try:
-        if todolist_id == request.json.get("todolist_id"):
-            todolist.delete()
+        if portfolio_id == request.json.get("portfolio_id"):
+            portfolio.delete()
             return jsonify()
         else:
             abort(400)
@@ -185,13 +185,13 @@ def delete_todolist(todolist_id):
         abort(400)
 
 
-@api.route("/todo/<int:todo_id>/", methods=["DELETE"])
+@api.route("/idea/<int:idea_id>/", methods=["DELETE"])
 @admin_required
-def delete_todo(todo_id):
-    todo = Todo.query.get_or_404(todo_id)
+def delete_idea(idea_id):
+    idea = Idea.query.get_or_404(idea_id)
     try:
-        if todo_id == request.json.get("todo_id"):
-            todo.delete()
+        if idea_id == request.json.get("idea_id"):
+            idea.delete()
             return jsonify()
         else:
             abort(400)

@@ -1,12 +1,12 @@
 $(document).ready(function() {
-  $(':checkbox').on('click', changeTodoStatus);
+  $(':checkbox').on('click', changeIdeaStatus);
 });
 
-function changeTodoStatus() {
+function changeIdeaStatus() {
   if ($(this).is(':checked')) {
-    putNewStatus($(this).data('todo-id'), true);
+    putNewStatus($(this).data('idea-id'), true);
   } else {
-    putNewStatus($(this).data('todo-id'), false);
+    putNewStatus($(this).data('idea-id'), false);
   }
 }
 
@@ -34,7 +34,7 @@ function getCookie(name) {
   return cookieValue;
 }
 
-function putNewStatus(todoID, isFinished) {
+function putNewStatus(ideaID, isFinished) {
 
   // setup ajax to csrf token
   var csrftoken = getCookie('csrftoken');
@@ -46,14 +46,14 @@ function putNewStatus(todoID, isFinished) {
     }
   });
   // send put request using the todo of the get for the same id
-  var todoURL = '/api/todo/' + todoID + '/'
-  $.getJSON(todoURL, function(todo) {
-    todo.is_finished = isFinished;
+  var ideaURL = '/api/idea/' + ideaID + '/'
+  $.getJSON(ideaURL, function(idea) {
+    idea.is_finished = isFinished;
     $.ajax({
-      url: todoURL,
+      url: ideaURL,
       type: 'PUT',
       contentType: 'application/json',
-      data: JSON.stringify(todo),
+      data: JSON.stringify(idea),
       success: function() {
         location.reload();
       }
