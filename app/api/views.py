@@ -38,7 +38,7 @@ def add_user():
 
 
 @api.route("/user/<string:username>/portfolios/")
-def get_user_todolists(username):
+def get_user_portfolios(username):
     user = User.query.filter_by(username=username).first_or_404()
     portfolios = user.portfolios
     return {"portfolios": [portfolio.to_dict() for portfolio in portfolios]}
@@ -54,7 +54,7 @@ def get_user_portfolio(username, portfolio_id):
 
 
 @api.route("/user/<string:username>/portfolio/", methods=["POST"])
-def add_user_todolist(username):
+def add_user_portfolio(username):
     user = User.query.filter_by(username=username).first_or_404()
     try:
         portfolio = Portfolio(
@@ -86,7 +86,7 @@ def add_portfolio():
     return portfolio.to_dict(), 201
 
 
-@api.route("/portfolio/<int:portfolio_id>/todos/")
+@api.route("/portfolio/<int:portfolio_id>/ideas/")
 def get_portfolio_ideas(portfolio_id):
     portfolio = Portfolio.query.get_or_404(portfolio_id)
     return {"ideas": [idea.to_dict() for idea in portfolio.ideas]}
@@ -101,7 +101,7 @@ def get_user_portfolio_ideas(username, portfolio_id):
 
 
 @api.route("/user/<string:username>/portfolio/<int:portfolio_id>/", methods=["POST"])
-def add_user_todolist_todo(username, portfolio_id):
+def add_user_portfolio_idea(username, portfolio_id):
     user = User.query.filter_by(username=username).first_or_404()
     portfolio = Portfolio.query.get_or_404(portfolio_id)
     try:
