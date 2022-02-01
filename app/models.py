@@ -121,7 +121,7 @@ class User(UserMixin, db.Model, BaseModel):
             "member_since": self.member_since,
             "last_seen": self.last_seen,
             "portfolios": url_for(
-                "api.get_user_todolists", username=self.username, _external=True
+                "api.get_user_portfolios", username=self.username, _external=True
             ),
             "portfolio_count": self.portfolios.count(),
         }
@@ -165,27 +165,27 @@ class Portfolio(db.Model, BaseModel):
     title = synonym("_title", descriptor=title)
 
     @property
-    def todos_url(self):
+    def ideas_url(self):
         url = None
-        kwargs = dict(todolist_id=self.id, _external=True)
+        kwargs = dict(portfolio_id=self.id, _external=True)
         if self.creator:
             kwargs["username"] = self.creator
-            url = "api.get_user_todolist_todos"
-        return url_for(url or "api.get_todolist_todos", **kwargs)
+            url = "api.get_user_portfolio_ideas"
+        return url_for(url or "api.get_user_portfolio_ideas", **kwargs)
 
     def to_dict(self):
         return {
             "title": self.title,
             "creator": self.creator,
             "created_at": self.created_at,
-            "total_todo_count": self.todo_count,
-            "open_todo_count": self.open_count,
-            "finished_todo_count": self.finished_count,
-            "todos": self.todos_url,
+            "total_idea_count": self.idea_count,
+            "open_idea_count": self.open_count,
+            "finished_idea_count": self.finished_count,
+            "ideas": self.ideas_url,
         }
 
     @property
-    def todo_count(self):
+    def idea_count(self):
         return self.ideas.order_by(None).count()
 
     @property

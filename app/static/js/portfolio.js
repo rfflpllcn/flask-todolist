@@ -45,7 +45,7 @@ function putNewStatus(ideaID, isFinished) {
       }
     }
   });
-  // send put request using the todo of the get for the same id
+  // send put request using the idea of the get for the same id
   var ideaURL = '/api/idea/' + ideaID + '/'
   $.getJSON(ideaURL, function(idea) {
     idea.is_finished = isFinished;

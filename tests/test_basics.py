@@ -158,7 +158,7 @@ class TodolistTestCase(unittest.TestCase):
         todo_description = "A book about TDD"
         todo = self.add_todo(todo_description, user, todolist_from_db.id)
 
-        self.assertEqual(todolist_from_db.todo_count, 1)
+        self.assertEqual(todolist_from_db.idea_count, 1)
         self.assertEqual(todolist.title, self.shopping_list_title)
         self.assertEqual(todolist.creator, user.username)
         self.assertEqual(todo.portfolio_id, todolist_from_db.id)
@@ -203,8 +203,8 @@ class TodolistTestCase(unittest.TestCase):
     def test_delete_todo(self):
         todolist = Portfolio(self.shopping_list_title).save()
         todo = Idea("A book about TDD", todolist.id).save()
-        self.assertEqual(todolist.todo_count, 1)
+        self.assertEqual(todolist.idea_count, 1)
         todo_id = todo.id
         todo.delete()
         self.assertIsNone(Idea.query.get(todo_id))
-        self.assertEqual(todolist.todo_count, 0)
+        self.assertEqual(todolist.idea_count, 0)

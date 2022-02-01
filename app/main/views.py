@@ -39,7 +39,7 @@ def portfolio(id):
 
 @main.route("/portfolio/new/", methods=["POST"])
 def new_portfolio():
-    form = IdeaForm(todo=request.form.get("todo"))
+    form = IdeaForm(idea=request.form.get("idea"))
     if form.validate():
         portfolio = Portfolio(creator=_get_user()).save()
         Idea(form.idea.data, portfolio.id).save()
@@ -49,7 +49,7 @@ def new_portfolio():
 
 @main.route("/portfolio/add/", methods=["POST"])
 def add_portfolio():
-    form = PortfolioForm(todo=request.form.get("title"))
+    form = PortfolioForm(idea=request.form.get("title"))
     if form.validate():
         portfolio = Portfolio(form.title.data, _get_user()).save()
         return redirect(url_for("main.portfolio", id=portfolio.id))
