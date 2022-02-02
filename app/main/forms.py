@@ -4,7 +4,7 @@ from wtforms.validators import Length, DataRequired
 
 
 class IdeaForm(FlaskForm):
-    idea = StringField("Enter your idea", validators=[DataRequired(), Length(1, 128)])
+    idea = StringField("Enter your invest idea (ISIN)", validators=[DataRequired(), Length(1, 128)])
     submit = SubmitField("Submit")
 
 
