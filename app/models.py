@@ -204,12 +204,14 @@ class Idea(db.Model, BaseModel):
     created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     finished_at = db.Column(db.DateTime, index=True, default=None)
     is_finished = db.Column(db.Boolean, default=False)
-    creator = db.Column(db.String(64), db.ForeignKey("user.username"))
     portfolio_id = db.Column(db.Integer, db.ForeignKey("portfolio.id"))
+    instrument_id = db.Column(db.Integer, db.ForeignKey("instrument.id"))
+    creator = db.Column(db.String(64), db.ForeignKey("user.username"))
 
-    def __init__(self, description, portfolio_id, creator=None, created_at=None):
+    def __init__(self, description, portfolio_id, instrument_id, creator=None, created_at=None):
         self.description = description
         self.portfolio_id = portfolio_id
+        self.instrument_id = instrument_id
         self.creator = creator
         self.created_at = created_at or datetime.utcnow()
 
@@ -238,4 +240,55 @@ class Idea(db.Model, BaseModel):
             "creator": self.creator,
             "created_at": self.created_at,
             "status": self.status,
+        }
+
+
+class Instrument(db.Model, BaseModel):
+    __tablename__ = "instrument"
+    id = db.Column(db.Integer, primary_key=True)
+    isin = db.Column(db.String(128))
+    short_name = db.Column(db.String(128))
+    name = db.Column(db.String(128))
+    sustainable = db.Column(db.Boolean, default=False)
+    responsible = db.Column(db.Boolean, default=False)
+
+    sakmCioSas3Name = db.Column(db.String(128))
+    sakmCioCurrencyCode = db.Column(db.String(128))
+    sakmCioCountryCode = db.Column(db.String(128))
+
+    esg = db.Column(db.String(128))
+    updated_on = db.Column(db.DateTime, index=True, default=None)
+
+    ideas = db.relationship("Idea", backref="instrument", lazy="dynamic")
+
+    def __init__(self, isin, short_name, name, sustainable, responsible, sakmCioSas3Name, sakmCioCurrencyCode,
+                 sakmCioCountryCode, esg):
+        self.isin = isin
+        self.short_name = short_name
+        self.name = name
+        self.sustainable = sustainable
+        self.responsible = responsible
+        self.sakmCioSas3Name = sakmCioSas3Name
+        self.sakmCioCurrencyCode = sakmCioCurrencyCode
+        self.sakmCioCountryCode = sakmCioCountryCode
+        self.esg = esg
+        self.updated_on = datetime.utcnow()
+
+    def __repr__(self):
+        return "<Instrument: {} updated on {}>".format(
+            self.name, self.updated_on
+        )
+
+    def to_dict(self):
+        return {
+            "isin": self.isin,
+            "short_name": self.short_name,
+            "name": self.name,
+            "sustainable": self.sustainable,
+            "responsible": self.responsible,
+            "sakmCioSas3Name": self.sakmCioSas3Name,
+            "sakmCioCurrencyCode": self.sakmCioCurrencyCode,
+            "sakmCioCountryCode": self.sakmCioCountryCode,
+            "esg": self.esg,
+            "updated_on": self.updated_on,
         }
