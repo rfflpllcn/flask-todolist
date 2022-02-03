@@ -12,7 +12,8 @@
       <form action="{{ url_for('main.new_portfolio') }}" method=post>
         {{ form.hidden_tag() }}
         <dl>
-          <dd>{{ form.idea(class_="u-full-width", placeholder="Enter your invest idea", maxlength=128) }}
+          <dd>{{ form.description(class_="u-full-width", placeholder="Enter your invest idea name", value="", maxlength=128) }}
+          <dd>{{ form.isin(class_="u-full-width", placeholder="Choose your invest idea ISIN", value="", maxlength=128) }}
           <dt>{{ form.submit(class="button button-primary", value="Start one now") }}
         </dl>
       </form>

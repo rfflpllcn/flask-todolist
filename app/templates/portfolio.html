@@ -2,6 +2,9 @@
 
 {% block js %}
 <script src="{{ url_for('static', filename='js/portfolio.js') }}"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/js/select2.min.js"></script>
+
 {% endblock %}
 
 {% block body %}
@@ -16,7 +19,8 @@
       <form method=post>
         {{ form.hidden_tag() }}
         <dl>
-          <dd>{{ form.idea(class_="u-full-width", placeholder="Enter your invest idea", value="", maxlength=128) }}
+          <dd>{{ form.description(class_="u-full-width", placeholder="Enter your invest idea name", value="", maxlength=128) }}
+          <dd>{{ form.isin(class_="u-full-width", placeholder="Choose your invest idea ISIN", value="", maxlength=128) }}
           <dt>{{ form.submit }}
         </dl>
       </form>
@@ -27,7 +31,8 @@
         <ul>
           {% for idea in portfolio.ideas %}
             {% if not idea.is_finished %}
-              <li><input type="checkbox" id="checkbox" data-idea-id="{{ idea.id }}"> {{ idea.description }}</li>
+              {{idea}}
+              <li><input type="checkbox" id="checkbox" data-idea-id="{{ idea.id }}"> "{{ idea.idea_instrument }}"</li>
             {% endif %}
           {% endfor %}
         </ul>
@@ -45,4 +50,15 @@
     </div>
   </div>
 </section>
+
+<script>
+  $(document).ready(function() {
+    $('#isin').select2({  // init Select2 on form's isin field
+      placeholder: "{{ form.isin.label.text }}",
+      allowClear: true,
+      "width": "style"
+    });
+  });
+</script>
+
 {% endblock %}

@@ -1,10 +1,17 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from wtforms import StringField, SubmitField, SearchField, SelectField
 from wtforms.validators import Length, DataRequired
+
+# from app.models import Instrument
 
 
 class IdeaForm(FlaskForm):
-    idea = StringField("Enter your invest idea (ISIN)", validators=[DataRequired(), Length(1, 128)])
+    description = StringField("Enter your invest idea name",
+                              validators=[DataRequired(),
+                                          Length(1, 128)])
+    isin = SelectField("Choose your invest idea ISIN",
+                       validators=[DataRequired()]
+                       )
     submit = SubmitField("Submit")
 
 

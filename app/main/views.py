@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 
 from app.main import main
 from app.main.forms import IdeaForm, PortfolioForm
-from app.models import Idea, Portfolio
+from app.models import Idea, Portfolio, Instrument
 
 
 @main.route("/")
@@ -27,12 +27,22 @@ def _get_user():
     return current_user.username if current_user.is_authenticated else None
 
 
+def populate_ideaform_choices(ideaForm):
+    instruments = Instrument.query.all()
+    isins = [(ins.isin, ins.isin) for ins in instruments]
+    ideaForm.isin.choices = isins
+
+
 @main.route("/portfolio/<int:id>/", methods=["GET", "POST"])
 def portfolio(id):
     portfolio = Portfolio.query.filter_by(id=id).first_or_404()
+    # print("portfolio ideas", portfolio.ideas)
     form = IdeaForm()
+    populate_ideaform_choices(form)
     if form.validate_on_submit():
-        Idea(form.idea.data, portfolio.id, _get_user()).save()
+        print("form.idea.data", form.description.data, form.isin.data)
+        instrument = Instrument.query.filter_by(isin=form.isin.data).first_or_404()
+        Idea(form.description.data, portfolio.id, instrument.id, _get_user()).save()
         return redirect(url_for("main.portfolio", id=id))
     return render_template("portfolio.html", portfolio=portfolio, form=form)
 

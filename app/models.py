@@ -208,6 +208,7 @@ class Idea(db.Model, BaseModel):
     instrument_id = db.Column(db.Integer, db.ForeignKey("instrument.id"))
     creator = db.Column(db.String(64), db.ForeignKey("user.username"))
 
+    # def __init__(self, description, portfolio_id, instrument_id, creator=None, created_at=None):
     def __init__(self, description, portfolio_id, instrument_id, creator=None, created_at=None):
         self.description = description
         self.portfolio_id = portfolio_id
@@ -216,8 +217,8 @@ class Idea(db.Model, BaseModel):
         self.created_at = created_at or datetime.utcnow()
 
     def __repr__(self):
-        return "<{} Idea: {} by {}>".format(
-            self.status, self.description, self.creator or "None"
+        return "<{} Idea: {} {} by {}>".format(
+            self.status, self.description, self.instrument_id, self.creator or "None"
         )
 
     @property
@@ -246,7 +247,7 @@ class Idea(db.Model, BaseModel):
 class Instrument(db.Model, BaseModel):
     __tablename__ = "instrument"
     id = db.Column(db.Integer, primary_key=True)
-    isin = db.Column(db.String(128))
+    isin = db.Column(db.String(128), unique=True, nullable=False)
     short_name = db.Column(db.String(128))
     name = db.Column(db.String(128))
     sustainable = db.Column(db.Boolean, default=False)
@@ -259,7 +260,7 @@ class Instrument(db.Model, BaseModel):
     esg = db.Column(db.String(128))
     updated_on = db.Column(db.DateTime, index=True, default=None)
 
-    ideas = db.relationship("Idea", backref="instrument", lazy="dynamic")
+    # ideas = db.relationship("Idea", backref="instrument", lazy="dynamic")
 
     def __init__(self, isin, short_name, name, sustainable, responsible, sakmCioSas3Name, sakmCioCurrencyCode,
                  sakmCioCountryCode, esg):
